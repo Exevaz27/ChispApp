@@ -16,7 +16,7 @@
   <!-- Encabezado de la Aplicación -->
   <header class="app-header">
     <div class="header-container">
-      <div class="brand">
+      <div class="brand" id="brand-home-btn" title="⚡ Toca aquí para volver al inicio">
         <div class="brand-icon">⚡</div>
         <div class="brand-text">
           <h1>ChispApp</h1>
@@ -85,6 +85,14 @@
           <strong id="audio-player-title">Pregunta 1 de 32: Cargando...</strong>
         </div>
         <div class="audio-player-controls">
+          <!-- Selector de Voz Humana / Natural -->
+          <div class="voice-selector-box">
+            <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 700;">🎙️ Voz:</span>
+            <select id="voice-select" class="voice-select-dropdown" title="Seleccionar voz en español">
+              <option value="auto">🌟 Voz Natural (Automática)</option>
+            </select>
+          </div>
+
           <!-- Selector de Velocidad -->
           <div class="speed-selector-group">
             <button class="btn-speed-pill active" data-speed="1.0">1.0x</button>
