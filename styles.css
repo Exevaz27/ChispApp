@@ -2185,3 +2185,120 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Botón de Modo Bolsillo en la barra de audio */
+.btn-player-ctrl.pocket {
+  background: rgba(147, 51, 234, 0.2);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #c084fc;
+}
+
+.btn-player-ctrl.pocket:hover {
+  background: rgba(147, 51, 234, 0.4);
+  color: #fff;
+}
+
+/* Pantalla Completa de Modo Bolsillo (OLED Negro de Ahorro y Anti-Toques) */
+.pocket-mode-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000000;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.pocket-mode-content {
+  text-align: center;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.pocket-icon {
+  font-size: 3.5rem;
+  color: #c084fc;
+  filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.4));
+  animation: pulseMoon 3s ease-in-out infinite;
+}
+
+@keyframes pulseMoon {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+.pocket-mode-content h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.pocket-sub {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.pocket-track-info {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--accent-cyan);
+  font-weight: 700;
+  font-size: 0.95rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pocket-pulse {
+  display: inline-block;
+  animation: spin 3s linear infinite;
+}
+
+.pocket-tip {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius-md);
+  color: #6ee7b7;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.btn-exit-pocket {
+  background: linear-gradient(135deg, #2563eb, #38bdf8);
+  border: none;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1rem;
+  padding: 1rem 2rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  box-shadow: 0 0 25px rgba(37, 99, 235, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.btn-exit-pocket:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 35px rgba(56, 189, 248, 0.7);
+}
+
+.btn-exit-pocket:active {
+  transform: scale(0.96);
+}
