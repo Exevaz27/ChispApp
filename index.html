@@ -80,31 +80,40 @@
 
       <!-- Barra de Reproductor Continuo de Audio (Visible al reproducir todo) -->
       <div class="audio-player-bar" id="audio-player-bar" style="display: none;">
-        <div class="audio-player-info">
-          <span class="audio-playing-indicator">🎧 En reproducción continua</span>
-          <strong id="audio-player-title">Pregunta 1 de 32: Cargando...</strong>
+        <!-- Fila 1: Título de la pregunta y Acciones rápidas (Bolsillo / Detener) -->
+        <div class="audio-player-header-row">
+          <div class="audio-player-info">
+            <span class="audio-playing-indicator">🎧 En reproducción continua</span>
+            <strong id="audio-player-title">Pregunta 1 de 32: Cargando...</strong>
+          </div>
+          <div class="audio-player-quick-actions">
+            <button class="btn-player-ctrl pocket" id="btn-pocket-mode" title="Modo Bolsillo (Pantalla oscura de bajo consumo)">🌙 Modo Bolsillo</button>
+            <button class="btn-player-ctrl stop" id="btn-player-stop" title="Detener reproducción">⏹️ Detener</button>
+          </div>
         </div>
-        <div class="audio-player-controls">
-          <!-- Selector de Voz Humana / Natural -->
-          <div class="voice-selector-box">
-            <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 700;">🎙️ Voz:</span>
-            <select id="voice-select" class="voice-select-dropdown" title="Seleccionar voz en español">
-              <option value="auto">🌟 Voz Natural (Automática)</option>
-            </select>
+
+        <!-- Fila 2: Configuración (Voz/Velocidad) y Botones de Reproducción -->
+        <div class="audio-player-controls-row">
+          <div class="audio-settings-group">
+            <div class="voice-selector-box">
+              <span style="font-size: 0.72rem; color: var(--accent-cyan); font-weight: 700;">🎙️</span>
+              <select id="voice-select" class="voice-select-dropdown" title="Seleccionar voz en español">
+                <option value="auto">🌟 Voz Natural (Auto)</option>
+              </select>
+            </div>
+
+            <div class="speed-selector-group">
+              <button class="btn-speed-pill active" data-speed="1.0">1.0x</button>
+              <button class="btn-speed-pill" data-speed="1.25">1.25x</button>
+              <button class="btn-speed-pill" data-speed="1.5">1.5x</button>
+            </div>
           </div>
 
-          <!-- Selector de Velocidad -->
-          <div class="speed-selector-group">
-            <button class="btn-speed-pill active" data-speed="1.0">1.0x</button>
-            <button class="btn-speed-pill" data-speed="1.25">1.25x</button>
-            <button class="btn-speed-pill" data-speed="1.5">1.5x</button>
+          <div class="audio-playback-buttons">
+            <button class="btn-player-ctrl nav-btn" id="btn-player-prev" title="Pregunta anterior">⏮️</button>
+            <button class="btn-player-ctrl play-pause" id="btn-player-play-pause" title="Pausar / Reanudar">⏸️ Pausar</button>
+            <button class="btn-player-ctrl nav-btn" id="btn-player-next" title="Siguiente pregunta">⏭️</button>
           </div>
-
-          <button class="btn-player-ctrl" id="btn-player-prev" title="Pregunta anterior">⏮️</button>
-          <button class="btn-player-ctrl play-pause" id="btn-player-play-pause" title="Pausar / Reanudar">⏸️ Pausar</button>
-          <button class="btn-player-ctrl" id="btn-player-next" title="Siguiente pregunta">⏭️</button>
-          <button class="btn-player-ctrl pocket" id="btn-pocket-mode" title="Modo Bolsillo (Pantalla oscura de bajo consumo)">🌙 Modo Bolsillo</button>
-          <button class="btn-player-ctrl stop" id="btn-player-stop" title="Detener reproducción">⏹️ Detener</button>
         </div>
       </div>
 
@@ -645,6 +654,9 @@
   <!-- Pie de Página -->
   <footer class="app-footer">
     <p>⚡ <strong>ChispApp</strong> • Plataforma Interactiva de Capacitación y Seguridad Eléctrica BT/MT • Material de Estudio Oficial</p>
+    <p class="desktop-shortcuts-hint" style="margin-top: 0.5rem; font-size: 0.78rem; color: var(--text-dim);">
+      ⌨️ <strong>Atajos de Teclado en PC:</strong> <kbd style="background: rgba(255,255,255,0.08); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-color); color: var(--accent-cyan);">Espacio</kbd> Play/Pausa • <kbd style="background: rgba(255,255,255,0.08); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-color); color: var(--accent-cyan);">→</kbd> <kbd style="background: rgba(255,255,255,0.08); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-color); color: var(--accent-cyan);">←</kbd> Siguiente/Anterior • <kbd style="background: rgba(255,255,255,0.08); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-color); color: var(--accent-cyan);">/</kbd> Buscar • <kbd style="background: rgba(255,255,255,0.08); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-color); color: var(--accent-cyan);">1-4</kbd> Responder Examen • <kbd style="background: rgba(255,255,255,0.08); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid var(--border-color); color: var(--accent-cyan);">Esc</kbd> Cerrar Modales
+    </p>
   </footer>
 
   <!-- Scripts -->
