@@ -455,6 +455,59 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Sistema Screen Wake Lock para mantener la pantalla activa mientras se escucha
+  let screenWakeLock = null;
+
+  async function requestScreenWakeLock() {
+    if ('wakeLock' in navigator) {
+      try {
+        screenWakeLock = await navigator.wakeLock.request('screen');
+      } catch (err) {
+        console.warn("WakeLock no permitido:", err);
+      }
+    }
+  }
+
+  function releaseScreenWakeLock() {
+    if (screenWakeLock !== null) {
+      try {
+        screenWakeLock.release();
+        screenWakeLock = null;
+      } catch (err) {}
+    }
+  }
+
+  document.addEventListener('visibilitychange', async () => {
+    if (screenWakeLock !== null && document.visibilityState === 'visible' && state.audioPlaylist.isPlaying) {
+      await requestScreenWakeLock();
+    }
+  });
+
+  // Modo Bolsillo (OLED Negro de Ahorro y Bloqueo Táctil)
+  const pocketModeOverlay = document.getElementById("pocket-mode-overlay");
+  const btnPocketMode = document.getElementById("btn-pocket-mode");
+  const btnExitPocketMode = document.getElementById("btn-exit-pocket-mode");
+  const pocketCurrentTitle = document.getElementById("pocket-current-title");
+
+  if (btnPocketMode) {
+    btnPocketMode.addEventListener("click", () => {
+      if (pocketModeOverlay) {
+        pocketModeOverlay.style.display = "flex";
+        requestScreenWakeLock();
+        showToast("🌙 Modo Bolsillo activado: guarda tu celular", "info");
+      }
+    });
+  }
+
+  if (btnExitPocketMode) {
+    btnExitPocketMode.addEventListener("click", () => {
+      if (pocketModeOverlay) {
+        pocketModeOverlay.style.display = "none";
+        showToast("🔓 Saliste del Modo Bolsillo", "info");
+      }
+    });
+  }
+
   function startPlayAll() {
     if (!('speechSynthesis' in window)) {
       showToast("Tu navegador no soporta síntesis de voz.", "warning");
@@ -467,8 +520,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Iniciar pista de fondo silenciosa para evitar que Android suspenda el audio al apagar la pantalla
+    // Iniciar pista de fondo silenciosa y solicitar WakeLock
     silentBgAudio.play().catch(() => {});
+    requestScreenWakeLock();
 
     window.speechSynthesis.cancel();
     state.audioPlaylist.queue = queue;
@@ -498,6 +552,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const q = state.audioPlaylist.queue[index];
 
     audioPlayerTitle.innerText = `Pregunta ${index + 1} de ${state.audioPlaylist.queue.length}: ${q.title}`;
+    if (pocketCurrentTitle) {
+      pocketCurrentTitle.innerText = `Pregunta ${index + 1}/${state.audioPlaylist.queue.length}: ${q.title}`;
+    }
 
     // Actualizar pantalla de bloqueo de Android
     updateMediaSessionMetadata(q, index, state.audioPlaylist.queue.length);
@@ -558,6 +615,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (state.audioPlaylist.isPaused) {
       silentBgAudio.play().catch(() => {});
+      requestScreenWakeLock();
       window.speechSynthesis.resume();
       state.audioPlaylist.isPaused = false;
       btnPlayerPlayPause.innerHTML = "⏸️ Pausar";
@@ -565,6 +623,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
     } else {
       silentBgAudio.pause();
+      releaseScreenWakeLock();
       window.speechSynthesis.pause();
       state.audioPlaylist.isPaused = true;
       btnPlayerPlayPause.innerHTML = "▶️ Reanudar";
@@ -576,8 +635,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function stopPlayAll() {
     state.audioPlaylist.isPlaying = false;
     state.audioPlaylist.isPaused = false;
+    releaseScreenWakeLock();
     silentBgAudio.pause();
     silentBgAudio.currentTime = 0;
+
+    if (pocketModeOverlay) {
+      pocketModeOverlay.style.display = "none";
+    }
 
     if ('mediaSession' in navigator) {
       navigator.mediaSession.playbackState = "none";
