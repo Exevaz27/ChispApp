@@ -49,7 +49,10 @@ document.addEventListener("DOMContentLoaded", () => {
     poleStage: 1,
 
     // Estado de la Ruleta
-    lastRouletteId: null
+    lastRouletteId: null,
+
+    // Voz seleccionada
+    selectedVoiceURI: localStorage.getItem("selected_voice_uri") || "auto"
   };
 
   // Toast Notification System
@@ -71,9 +74,65 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // =========================================================================
-  // 0. SÍNTESIS DE VOZ / AUDIO ROBUSTA (PROTEGIDA CONTRA GARBAGE COLLECTION)
+  // 0. SÍNTESIS DE VOZ NATURAL / HUMANA (CON SELECTOR Y PRIORIDAD NEURAL)
   // =========================================================================
   window._activeUtterance = null;
+  let availableSpanishVoices = [];
+  const voiceSelect = document.getElementById("voice-select");
+
+  function loadAvailableVoices() {
+    if (!('speechSynthesis' in window)) return;
+    const allVoices = window.speechSynthesis.getVoices();
+    availableSpanishVoices = allVoices.filter(v => v.lang && v.lang.toLowerCase().startsWith('es'));
+
+    if (voiceSelect) {
+      voiceSelect.innerHTML = '<option value="auto">🌟 Voz Humana Natural (Auto)</option>';
+      availableSpanishVoices.forEach(v => {
+        const option = document.createElement("option");
+        option.value = v.voiceURI;
+        let displayName = v.name
+          .replace(/Microsoft /i, '')
+          .replace(/ Online \(Natural\)/i, ' (Natural)')
+          .replace(/ - Spanish \(.*\)/i, '');
+        option.innerText = `🗣️ ${displayName} (${v.lang})`;
+        if (v.voiceURI === state.selectedVoiceURI) {
+          option.selected = true;
+        }
+        voiceSelect.appendChild(option);
+      });
+    }
+  }
+
+  if ('speechSynthesis' in window) {
+    loadAvailableVoices();
+    window.speechSynthesis.onvoiceschanged = loadAvailableVoices;
+  }
+
+  if (voiceSelect) {
+    voiceSelect.addEventListener("change", (e) => {
+      state.selectedVoiceURI = e.target.value;
+      localStorage.setItem("selected_voice_uri", state.selectedVoiceURI);
+      showToast("Voz de locución actualizada 🗣️", "info");
+      if (state.audioPlaylist.isPlaying && !state.audioPlaylist.isPaused) {
+        playPlaylistIndex(state.audioPlaylist.currentIndex);
+      }
+    });
+  }
+
+  function getBestSpanishVoice() {
+    if (state.selectedVoiceURI && state.selectedVoiceURI !== "auto") {
+      const found = availableSpanishVoices.find(v => v.voiceURI === state.selectedVoiceURI);
+      if (found) return found;
+    }
+    // Priorizar voces Naturales / Neuronales / Google de alta fidelidad
+    const natural = availableSpanishVoices.find(v => /natural|neural/i.test(v.name));
+    if (natural) return natural;
+    const google = availableSpanishVoices.find(v => /google/i.test(v.name));
+    if (google) return google;
+    const premium = availableSpanishVoices.find(v => /enhanced|premium/i.test(v.name));
+    if (premium) return premium;
+    return availableSpanishVoices[0] || null;
+  }
 
   function speakText(text, btnElement) {
     if (!('speechSynthesis' in window)) {
@@ -88,8 +147,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'es-ES';
+    const chosenVoice = getBestSpanishVoice();
+    if (chosenVoice) {
+      utterance.voice = chosenVoice;
+      utterance.lang = chosenVoice.lang;
+    } else {
+      utterance.lang = 'es-ES';
+    }
+
     utterance.rate = state.speechSpeed || 1.0;
+    utterance.pitch = 1.02; // Ligero ajuste para entonación más cálida y humana
     window._activeUtterance = utterance;
 
     if (btnElement) {
@@ -343,6 +410,51 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Audio Silencioso en Bucle para mantener activo el proceso de Android con pantalla bloqueada
+  const silentBgAudio = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA");
+  silentBgAudio.loop = true;
+
+  // Actualizar controles en la pantalla de bloqueo de Android (MediaSession API)
+  function updateMediaSessionMetadata(q, index, total) {
+    if (!('mediaSession' in navigator)) return;
+
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: `Pregunta ${index + 1}: ${q.title}`,
+        artist: "ChispApp ⚡ Liniero BT/MT",
+        album: `Temario Oficial (${index + 1} de ${total})`,
+        artwork: [
+          {
+            src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>",
+            sizes: "192x192",
+            type: "image/svg+xml"
+          }
+        ]
+      });
+
+      navigator.mediaSession.playbackState = "playing";
+
+      navigator.mediaSession.setActionHandler('play', () => {
+        if (state.audioPlaylist.isPaused) togglePlayPausePlaylist();
+      });
+      navigator.mediaSession.setActionHandler('pause', () => {
+        if (!state.audioPlaylist.isPaused) togglePlayPausePlaylist();
+      });
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        if (state.audioPlaylist.currentIndex + 1 < state.audioPlaylist.queue.length) {
+          playPlaylistIndex(state.audioPlaylist.currentIndex + 1);
+        }
+      });
+      navigator.mediaSession.setActionHandler('previoustrack', () => {
+        if (state.audioPlaylist.currentIndex - 1 >= 0) {
+          playPlaylistIndex(state.audioPlaylist.currentIndex - 1);
+        }
+      });
+    } catch (e) {
+      console.warn("MediaSession no soportado completamente:", e);
+    }
+  }
+
   function startPlayAll() {
     if (!('speechSynthesis' in window)) {
       showToast("Tu navegador no soporta síntesis de voz.", "warning");
@@ -354,6 +466,9 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("No hay preguntas visibles en la lista actual para reproducir.", "warning");
       return;
     }
+
+    // Iniciar pista de fondo silenciosa para evitar que Android suspenda el audio al apagar la pantalla
+    silentBgAudio.play().catch(() => {});
 
     window.speechSynthesis.cancel();
     state.audioPlaylist.queue = queue;
@@ -384,6 +499,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     audioPlayerTitle.innerText = `Pregunta ${index + 1} de ${state.audioPlaylist.queue.length}: ${q.title}`;
 
+    // Actualizar pantalla de bloqueo de Android
+    updateMediaSessionMetadata(q, index, state.audioPlaylist.queue.length);
+
     document.querySelectorAll(".study-card").forEach(c => c.classList.remove("reading-active"));
     const activeCard = document.getElementById(`card-${q.id}`);
     if (activeCard) {
@@ -391,12 +509,24 @@ document.addEventListener("DOMContentLoaded", () => {
       activeCard.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
+    // Desvincular eventos del utterance anterior para evitar saltos accidentales
+    if (window._activeUtterance) {
+      window._activeUtterance.onend = null;
+      window._activeUtterance.onerror = null;
+    }
     window.speechSynthesis.cancel();
 
     const fullSpeech = `Pregunta número ${q.number}. ${q.title}. Respuesta: ${q.fullAnswer}`;
     const utterance = new SpeechSynthesisUtterance(fullSpeech);
-    utterance.lang = "es-ES";
+    const chosenVoice = getBestSpanishVoice();
+    if (chosenVoice) {
+      utterance.voice = chosenVoice;
+      utterance.lang = chosenVoice.lang;
+    } else {
+      utterance.lang = "es-ES";
+    }
     utterance.rate = state.speechSpeed || 1.0;
+    utterance.pitch = 1.02;
     window._activeUtterance = utterance;
 
     utterance.onend = () => {
@@ -410,6 +540,10 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     utterance.onerror = (e) => {
+      // Ignorar si la cancelación fue deliberada por cambio de velocidad/voz/pausa
+      if (e.error === 'interrupted' || e.error === 'canceled') {
+        return;
+      }
       console.warn("SpeechSynthesis error:", e);
       if (state.audioPlaylist.isPlaying && !state.audioPlaylist.isPaused) {
         playPlaylistIndex(state.audioPlaylist.currentIndex + 1);
@@ -423,21 +557,32 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!state.audioPlaylist.isPlaying) return;
 
     if (state.audioPlaylist.isPaused) {
+      silentBgAudio.play().catch(() => {});
       window.speechSynthesis.resume();
       state.audioPlaylist.isPaused = false;
       btnPlayerPlayPause.innerHTML = "⏸️ Pausar";
       document.querySelector(".audio-playing-indicator").innerText = "🎧 En reproducción continua";
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
     } else {
+      silentBgAudio.pause();
       window.speechSynthesis.pause();
       state.audioPlaylist.isPaused = true;
       btnPlayerPlayPause.innerHTML = "▶️ Reanudar";
       document.querySelector(".audio-playing-indicator").innerText = "⏸️ Reproducción pausada";
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
     }
   }
 
   function stopPlayAll() {
     state.audioPlaylist.isPlaying = false;
     state.audioPlaylist.isPaused = false;
+    silentBgAudio.pause();
+    silentBgAudio.currentTime = 0;
+
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = "none";
+    }
+
     window.speechSynthesis.cancel();
     window._activeUtterance = null;
 
@@ -1402,6 +1547,15 @@ document.addEventListener("DOMContentLoaded", () => {
   if (glossarySearchInput) {
     glossarySearchInput.addEventListener("input", (e) => {
       renderGlossary(e.target.value);
+    });
+  }
+
+  // Botón Home / Volver al Inicio al tocar el Logo del Rayo o Título
+  const brandHomeBtn = document.getElementById("brand-home-btn");
+  if (brandHomeBtn) {
+    brandHomeBtn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      showToast("⚡ Volviendo al inicio", "info");
     });
   }
 
