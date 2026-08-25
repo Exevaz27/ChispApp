@@ -61,7 +61,8 @@ El proyecto se basa estrictamente en el siguiente documento de 32 preguntas y re
    * Resaltado visual de valores críticos ($220\text{V}$, $380\text{V}$, $0\text{V}$, $266\text{A}$, $0.80\text{m}$, $10\%+60\text{cm}$, etc.).
    * Botón de lectura individual en voz alta (**🔊 Audio**).
    * **🎧 Reproductor Continuo de Audio ("Escuchar Todo en Orden"):** Playlist que lee todas las preguntas en secuencia con scroll automático suave, selector de voz natural/humana (`🎙️ Voz`), selector de velocidad ($1.0\times, 1.25\times, 1.5\times$), resalte dorado de tarjeta activa y barra flotante con botones (⏮️, ⏸️, ⏭️, ⏹️). Se blindó para permitir cambiar de voz y velocidad en vivo sin saltos ni interrupciones.
-   * **📱 Modo Segundo Plano y Pantalla Bloqueada (Android MediaSession):** Pista de audio silenciosa en loop que evita la suspensión de Android al apagar la pantalla y muestra la carátula con botones de Play/Pausa/Siguiente en la pantalla de bloqueo.
+   * **📱 Modo Pantalla Siempre Activa (Screen Wake Lock):** Mantiene la pantalla encendida de forma automática mientras se escucha el temario para evitar que Android corte la voz.
+   * **🌙 Modo Bolsillo (OLED Negro de Ahorro y Anti-Toques):** Botón que oscurece la pantalla al 100% (apagando los píxeles en pantallas OLED/AMOLED) y bloquea los toques accidentales para escuchar todo el temario en la calle con el celular en el bolsillo con consumo mínimo de batería.
    * Filtro ⭐ **"Solo Pendientes"** y filtro por categorías.
    * Modo **🃏 Flashcards** (oculta respuestas para memorizar).
    * **⚡ Botón Home en Logo y Título:** Al tocar el logo del rayo o el nombre ChispApp en la cabecera, la página se desplaza suavemente hacia arriba al instante.
