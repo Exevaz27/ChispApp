@@ -1,4 +1,4 @@
-# 🧠 MEMORIA Y CONTEXTO COMPLETO DEL PROYECTO: ElectroSafe BT/MT
+# 🧠 MEMORIA Y CONTEXTO COMPLETO DEL PROYECTO: ChispApp ⚡
 
 Este documento contiene la **historia completa, contexto, decisiones de diseño, ideas aprobadas y rechazadas** del desarrollo de la aplicación web de estudio de seguridad eléctrica. 
 Cualquier agente de IA que continúe este proyecto debe leer este archivo para comprender el 100% del trasfondo.
@@ -6,10 +6,13 @@ Cualquier agente de IA que continúe este proyecto debe leer este archivo para c
 ---
 
 ## 1. 🎯 Objetivo del Proyecto y Perfil del Usuario
+* **Nombre Oficial:** **ChispApp** ⚡
 * **Objetivo:** Preparar al usuario para un examen formal de ingreso técnico para un puesto laboral de liniero / seguridad eléctrica en redes de distribución de Baja y Media Tensión (BT/MT).
 * **Perfil del Usuario:** Persona sin conocimientos de programación que busca crear y perfeccionar su herramienta de estudio mediante instrucciones en lenguaje natural en español.
 * **Idioma oficial del proyecto:** Español.
 * **Tipo de Aplicación:** Web interactiva (SPA / PWA) moderna, instalable en celulares, responsiva (PC y Móvil), con tema oscuro (*glassmorphism*), **cero dependencias externas** (HTML5 + CSS3 + JavaScript Vanilla).
+* **Repositorio GitHub:** [https://github.com/Exevaz27/ChispApp](https://github.com/Exevaz27/ChispApp)
+* **Sitio Web en Vivo (GitHub Pages):** [https://exevaz27.github.io/ChispApp/](https://exevaz27.github.io/ChispApp/)
 
 ---
 
@@ -51,15 +54,17 @@ El proyecto se basa estrictamente en el siguiente documento de 32 preguntas y re
 
 ---
 
-## 3. 🛠️ Estructura y Módulos Desarrollados en la Web
+## 3. 🛠️ Estructura y Módulos Desarrollados en ChispApp
 
 1. **📖 Modo Estudio & Flashcards:**
    * Tarjetas con número oficial, puntos clave y respuestas completas.
    * Resaltado visual de valores críticos ($220\text{V}$, $380\text{V}$, $0\text{V}$, $266\text{A}$, $0.80\text{m}$, $10\%+60\text{cm}$, etc.).
    * Botón de lectura individual en voz alta (**🔊 Audio**).
-   * **🎧 Reproductor Continuo de Audio ("Escuchar Todo en Orden"):** Playlist que lee todas las preguntas en secuencia con scroll automático suave, selector de velocidad ($1.0\times, 1.25\times, 1.5\times$), resalte dorado de tarjeta activa y barra flotante con botones (⏮️, ⏸️, ⏭️, ⏹️).
+   * **🎧 Reproductor Continuo de Audio ("Escuchar Todo en Orden"):** Playlist que lee todas las preguntas en secuencia con scroll automático suave, selector de voz natural/humana (`🎙️ Voz`), selector de velocidad ($1.0\times, 1.25\times, 1.5\times$), resalte dorado de tarjeta activa y barra flotante con botones (⏮️, ⏸️, ⏭️, ⏹️). Se blindó para permitir cambiar de voz y velocidad en vivo sin saltos ni interrupciones.
+   * **📱 Modo Segundo Plano y Pantalla Bloqueada (Android MediaSession):** Pista de audio silenciosa en loop que evita la suspensión de Android al apagar la pantalla y muestra la carátula con botones de Play/Pausa/Siguiente en la pantalla de bloqueo.
    * Filtro ⭐ **"Solo Pendientes"** y filtro por categorías.
    * Modo **🃏 Flashcards** (oculta respuestas para memorizar).
+   * **⚡ Botón Home en Logo y Título:** Al tocar el logo del rayo o el nombre ChispApp en la cabecera, la página se desplaza suavemente hacia arriba al instante.
 
 2. **📝 Modo Examen & Simulacro:**
    * **💡 Modo Práctica:** Con explicaciones técnicas inmediatas al responder.
@@ -96,6 +101,7 @@ El proyecto se basa estrictamente en el siguiente documento de 32 preguntas y re
 ## 4. 🚫 Decisiones e Ideas Rechazadas por el Usuario (NO VOLVER A PROPONER)
 * ❌ **Guía de bolsillo imprimible (PDF/Hoja de bolsillo):** Fue explícitamente rechazada por el usuario en la sesión del 25/08/2026.
 * ❌ **Sobrecargar con módulos nuevos sin antes perfeccionar los existentes:** El usuario prefiere un enfoque de pulir la calidad, botones de repetición y experiencia de uso antes de añadir pantallas innecesarias.
+* ⚠️ **REGLA DE FLUJO DE TRABAJO OBLIGATORIA (Local Primero):** Cada vez que se realicen cambios, mejoras o correcciones, se deben implementar y probar **SIEMPRE primero en los archivos locales** de la PC. Únicamente cuando el usuario pruebe, dé su visto bueno y pida subirlo, se ejecutará el script `deploy_github.ps1` para actualizar GitHub / GitHub Pages.
 
 ---
 
@@ -105,4 +111,5 @@ El proyecto se basa estrictamente en el siguiente documento de 32 preguntas y re
 * `data.js`: Base de datos de 32 preguntas, categorías, secuencias, match, verdadero/falso y glosario.
 * `app.js`: Controlador interactivo, síntesis de voz Web Speech API con velocidad y persistencia.
 * `manifest.json`: Configuración PWA para instalación en celulares.
+* `deploy_github.ps1`: Script de deploy automático para GitHub y GitHub Pages.
 * `PROJECT_MEMORY.md`: Este documento de contexto histórico.
