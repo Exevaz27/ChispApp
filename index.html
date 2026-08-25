@@ -103,6 +103,7 @@
           <button class="btn-player-ctrl" id="btn-player-prev" title="Pregunta anterior">⏮️</button>
           <button class="btn-player-ctrl play-pause" id="btn-player-play-pause" title="Pausar / Reanudar">⏸️ Pausar</button>
           <button class="btn-player-ctrl" id="btn-player-next" title="Siguiente pregunta">⏭️</button>
+          <button class="btn-player-ctrl pocket" id="btn-pocket-mode" title="Modo Bolsillo (Pantalla oscura de bajo consumo)">🌙 Modo Bolsillo</button>
           <button class="btn-player-ctrl stop" id="btn-player-stop" title="Detener reproducción">⏹️ Detener</button>
         </div>
       </div>
@@ -612,6 +613,29 @@
       <div class="glossary-grid" id="glossary-grid">
         <!-- Tarjetas de siglas inyectadas dinámicamente -->
       </div>
+    </div>
+  </div>
+
+  <!-- Pantalla Completa de Modo Bolsillo (OLED Negro de Ahorro y Bloqueo Táctil) -->
+  <div id="pocket-mode-overlay" class="pocket-mode-overlay" style="display: none;">
+    <div class="pocket-mode-content">
+      <div class="pocket-icon">🌙</div>
+      <h2>Modo Bolsillo Activo</h2>
+      <p class="pocket-sub">Pantalla protegida contra toques involuntarios en tu bolsillo.</p>
+      
+      <div class="pocket-track-info">
+        <span class="pocket-pulse">⚡</span>
+        <span id="pocket-current-title">Leyendo temario de estudio...</span>
+      </div>
+
+      <div class="pocket-tip">
+        La voz seguirá leyendo todo el temario sin apagarse.<br>
+        En pantallas OLED/AMOLED el fondo negro consume <strong>casi 0% de batería</strong>.
+      </div>
+
+      <button id="btn-exit-pocket-mode" class="btn-exit-pocket">
+        🔓 Toca aquí para Salir del Modo Bolsillo
+      </button>
     </div>
   </div>
 
