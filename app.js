@@ -1623,6 +1623,72 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // =========================================================================
+  // 12. ATAJOS DE TECLADO PARA ESCRITORIO (PC)
+  // =========================================================================
+  document.addEventListener("keydown", (e) => {
+    const activeEl = document.activeElement;
+    const isTyping = activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA");
+
+    // Escape: Cerrar cualquier modal abierto
+    if (e.key === "Escape") {
+      if (modalRoulette && modalRoulette.classList.contains("open")) modalRoulette.classList.remove("open");
+      if (modalGlossary && modalGlossary.classList.contains("open")) modalGlossary.classList.remove("open");
+      if (pocketModeOverlay && pocketModeOverlay.style.display === "flex") {
+        pocketModeOverlay.style.display = "none";
+        showToast("🔓 Saliste del Modo Bolsillo", "info");
+      }
+      return;
+    }
+
+    // '/' o 'Ctrl+K': Enfocar barra de búsqueda
+    if ((e.key === "/" || (e.ctrlKey && e.key.toLowerCase() === "k")) && !isTyping) {
+      e.preventDefault();
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+        showToast("🔍 Buscador enfocado", "info");
+      }
+      return;
+    }
+
+    if (isTyping) return;
+
+    // Espacio: Pausar / Reanudar audio
+    if (e.code === "Space" && state.audioPlaylist.isPlaying) {
+      e.preventDefault();
+      togglePlayPausePlaylist();
+      return;
+    }
+
+    // Flecha Derecha: Siguiente pregunta de audio
+    if (e.key === "ArrowRight" && state.audioPlaylist.isPlaying) {
+      e.preventDefault();
+      if (state.audioPlaylist.currentIndex + 1 < state.audioPlaylist.queue.length) {
+        playPlaylistIndex(state.audioPlaylist.currentIndex + 1);
+      }
+      return;
+    }
+
+    // Flecha Izquierda: Pregunta anterior de audio
+    if (e.key === "ArrowLeft" && state.audioPlaylist.isPlaying) {
+      e.preventDefault();
+      if (state.audioPlaylist.currentIndex - 1 >= 0) {
+        playPlaylistIndex(state.audioPlaylist.currentIndex - 1);
+      }
+      return;
+    }
+
+    // Teclas 1, 2, 3, 4: Responder opciones A, B, C, D en el examen activo
+    if (["1", "2", "3", "4"].includes(e.key) && state.quiz.active && quizActiveCard.style.display !== "none") {
+      const idx = parseInt(e.key, 10) - 1;
+      const optionButtons = quizOptionsList.querySelectorAll(".quiz-option-btn");
+      if (optionButtons[idx] && !optionButtons[idx].disabled) {
+        optionButtons[idx].click();
+      }
+    }
+  });
+
   // Inicialización de la App
   renderCategoryChips();
   renderStudyCards();
