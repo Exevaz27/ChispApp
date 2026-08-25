@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2563eb">
+  <title>⚡ ChispApp - Preparador Técnico de Seguridad Eléctrica BT/MT</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Encabezado de la Aplicación -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h1>ChispApp</h1>
+          <p>Preparador de Examen de Ingreso y Seguridad Eléctrica</p>
+        </div>
+      </div>
+
+      <!-- Pestañas de Navegación -->
+      <nav class="nav-tabs">
+        <button class="tab-btn active" data-target="estudio">📖 Modo Estudio</button>
+        <button class="tab-btn" data-target="examen">📝 Examen & Simulacro</button>
+        <button class="tab-btn" data-target="ordenamiento">🧩 Ordenar Pasos</button>
+        <button class="tab-btn" data-target="juegos">🎮 Minijuegos</button>
+        <button class="tab-btn" data-target="diagramas">📊 Simulador Visual</button>
+      </nav>
+
+      <!-- Botones de Acción de Cabecera -->
+      <div class="header-actions">
+        <button class="btn-glossary-header" id="btn-open-glossary" title="Diccionario de Siglas">
+          📚 Siglas
+        </button>
+        <button class="btn-roulette-header" id="btn-open-roulette">
+          🎯 Relámpago
+        </button>
+        <div class="progress-pill" id="global-progress-pill">
+          🏆 0/32 Dominadas (0%)
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal -->
+  <main class="main-container">
+
+    <!-- ====================================================================
+         1. SECCIÓN: MODO ESTUDIO & FLASHCARDS
+         ==================================================================== -->
+    <section id="estudio" class="tab-content active">
+      <div class="section-header">
+        <h2>📖 Guía de Estudio Completa con Audio y Flashcards</h2>
+        <p>Lee, escucha y memoriza las 32 preguntas técnicas clave. Puedes filtrar por tema, buscar conceptos, escuchar la lectura con el botón 🔊 o activar el modo flashcard.</p>
+      </div>
+
+      <!-- Controles de Estudio -->
+      <div class="study-controls">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Buscar por palabra (ej: 'fusible', 'RCP', 'guantes', '220V')...">
+        </div>
+
+        <div class="category-filter-chips" id="category-chips">
+          <!-- Se inyectan dinámicamente -->
+        </div>
+
+        <div class="view-mode-toggle">
+          <button class="btn-listen-all" id="btn-listen-all">🎧 Escuchar Todo en Orden</button>
+          <button class="chip-btn pending-filter" id="btn-toggle-pending">⭐ Solo Pendientes</button>
+          <button class="toggle-btn" id="toggle-flashcards">🃏 Modo Flashcards</button>
+        </div>
+      </div>
+
+      <!-- Barra de Reproductor Continuo de Audio (Visible al reproducir todo) -->
+      <div class="audio-player-bar" id="audio-player-bar" style="display: none;">
+        <div class="audio-player-info">
+          <span class="audio-playing-indicator">🎧 En reproducción continua</span>
+          <strong id="audio-player-title">Pregunta 1 de 32: Cargando...</strong>
+        </div>
+        <div class="audio-player-controls">
+          <!-- Selector de Velocidad -->
+          <div class="speed-selector-group">
+            <button class="btn-speed-pill active" data-speed="1.0">1.0x</button>
+            <button class="btn-speed-pill" data-speed="1.25">1.25x</button>
+            <button class="btn-speed-pill" data-speed="1.5">1.5x</button>
+          </div>
+
+          <button class="btn-player-ctrl" id="btn-player-prev" title="Pregunta anterior">⏮️</button>
+          <button class="btn-player-ctrl play-pause" id="btn-player-play-pause" title="Pausar / Reanudar">⏸️ Pausar</button>
+          <button class="btn-player-ctrl" id="btn-player-next" title="Siguiente pregunta">⏭️</button>
+          <button class="btn-player-ctrl stop" id="btn-player-stop" title="Detener reproducción">⏹️ Detener</button>
+        </div>
+      </div>
+
+      <!-- Rejilla de Tarjetas -->
+      <div class="cards-grid" id="cards-grid">
+        <!-- Tarjetas inyectadas dinámicamente -->
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         2. SECCIÓN: MODO EXAMEN & SIMULACRO REAL CON TEMPORIZADOR
+         ==================================================================== -->
+    <section id="examen" class="tab-content">
+      <div class="section-header">
+        <h2>📝 Examen de Práctica y Simulacro Real</h2>
+        <p>Practica con retroalimentación inmediata o pon a prueba tus nervios con el <strong>Simulacro Real con temporizador de 15 minutos</strong>, revisión pregunta por pregunta y Ficha de Diagnóstico.</p>
+      </div>
+
+      <div class="quiz-container">
+        <!-- Tarjeta de Configuración del Examen -->
+        <div class="quiz-config-card" id="quiz-config-card">
+          <h3 style="font-size: 1.4rem; color: #fff; margin-bottom: 0.5rem;">⚙️ Selecciona la Modalidad de Examen</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Elige si deseas practicar con pistas o simular el examen de ingreso oficial:</p>
+
+          <!-- Selector de Modo de Examen -->
+          <div class="exam-mode-pills" style="margin-top: 1.25rem;">
+            <button class="mode-pill-btn active" id="mode-btn-practice" data-mode="practice">
+              💡 Modo Práctica (Con explicaciones)
+            </button>
+            <button class="mode-pill-btn simulacro" id="mode-btn-simulacro" data-mode="simulacro">
+              ⏱️ Simulacro Real (15 min - Sin pistas)
+            </button>
+          </div>
+
+          <div class="quiz-config-grid">
+            <div class="config-box">
+              <label for="quiz-category-select">📚 Categoría:</label>
+              <select id="quiz-category-select">
+                <option value="all">Todo el Temario (Aleatorio)</option>
+                <option value="seguridad">🛡️ Seguridad, Normas y EPP</option>
+                <option value="reglas-maniobras">⚡ Reglas de Oro y Maniobras</option>
+                <option value="postacion">🪵 Postación y Columnas</option>
+                <option value="primeros-auxilios">🚑 Primeros Auxilios y RCP</option>
+                <option value="mediciones">🔌 Mediciones y Fundamentos BT</option>
+              </select>
+            </div>
+
+            <div class="config-box">
+              <label for="quiz-count-select">🔢 Cantidad de preguntas:</label>
+              <select id="quiz-count-select">
+                <option value="5">5 Preguntas rápidas</option>
+                <option value="10" selected>10 Preguntas (Recomendado)</option>
+                <option value="20">20 Preguntas (Simulacro Oficial)</option>
+                <option value="32">32 Preguntas (Examen Total)</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn-start-quiz" id="btn-start-quiz">🚀 Iniciar Examen Ahora</button>
+        </div>
+
+        <!-- Tarjeta de Pregunta Activa -->
+        <div class="quiz-active-card" id="quiz-active-card">
+          <!-- Temporizador (visible en modo simulacro) -->
+          <div class="timer-container" id="timer-container" style="display: none;">
+            <span style="font-size: 0.85rem; color: var(--text-muted);">⏳ Tiempo Restante:</span>
+            <span class="timer-badge" id="timer-display">15:00</span>
+          </div>
+
+          <div class="quiz-progress-bar-container">
+            <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+          </div>
+
+          <div class="quiz-header-meta">
+            <span style="font-weight: 700; color: var(--accent-cyan);">
+              Pregunta <span id="quiz-current-num">1</span> de <span id="quiz-total-num">10</span>
+            </span>
+            <span style="font-weight: 700; color: #fbbf24;">
+              Puntos: <span id="quiz-score-live">0</span> pts
+            </span>
+          </div>
+
+          <div class="quiz-question-text">
+            <span id="quiz-question-text-content">Cargando pregunta...</span>
+            <button class="btn-speaker" id="btn-speak-quiz" title="Escuchar pregunta">🔊</button>
+          </div>
+
+          <div class="quiz-options-list" id="quiz-options-list">
+            <!-- Opciones inyectadas dinámicamente -->
+          </div>
+
+          <!-- Caja de Retroalimentación (Modo Práctica) -->
+          <div class="quiz-feedback-box" id="quiz-feedback-box">
+            <!-- Mensaje de acierto o error con explicación -->
+          </div>
+
+          <div class="quiz-controls-footer">
+            <button class="btn-next-question" id="btn-next-question">Siguiente Pregunta ➔</button>
+          </div>
+        </div>
+
+        <!-- Tarjeta de Resultados Finales & Ficha Diagnóstico -->
+        <div class="quiz-results-card" id="quiz-results-card">
+          <h2 style="font-size: 1.8rem; color: #fff;">📊 Resultados del Examen</h2>
+          
+          <div class="score-circle">
+            <div class="score-percentage" id="results-score-pct">0%</div>
+            <div class="score-label">Puntaje Final</div>
+          </div>
+
+          <div id="results-best-score" style="font-size: 0.85rem; color: var(--accent-amber); font-weight: 700; margin-bottom: 1rem;">
+            🏆 Mejor Puntaje Histórico: 0%
+          </div>
+
+          <div class="results-stats-row">
+            <div class="stat-item green">
+              <h4 id="results-correct-count">0</h4>
+              <p>Correctas</p>
+            </div>
+            <div class="stat-item red">
+              <h4 id="results-wrong-count">0</h4>
+              <p>Incorrectas</p>
+            </div>
+          </div>
+
+          <!-- Ficha de Diagnóstico por Categoría -->
+          <div class="diagnostic-breakdown" id="diagnostic-breakdown">
+            <h4 style="color: #fff; margin-bottom: 0.85rem; font-size: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.4rem;">
+              📋 Ficha de Rendimiento Técnico por Tema:
+            </h4>
+            <div id="diagnostic-bars-container">
+              <!-- Barras inyectadas dinámicamente -->
+            </div>
+          </div>
+
+          <div id="results-feedback-message" style="margin-bottom: 1.5rem; color: #e2e8f0; font-size: 1rem;"></div>
+
+          <div class="results-action-buttons">
+            <button class="btn-copy-results" id="btn-copy-results">📋 Copiar Mi Resumen</button>
+            <button class="btn-retry-missed" id="btn-retry-missed" style="display: none;">
+              🎯 Repetir Solo las Falladas
+            </button>
+            <button class="btn-start-quiz" id="btn-restart-quiz">🔄 Realizar Otro Examen</button>
+          </div>
+
+          <!-- Revisión Detallada Pregunta por Pregunta -->
+          <div class="exam-review-section">
+            <h3 style="color: #fff; font-size: 1.15rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+              🔍 Revisión Detallada de Preguntas:
+            </h3>
+            <div id="exam-review-list">
+              <!-- Tarjetas de revisión inyectadas dinámicamente -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         3. SECCIÓN: MODO ORDENAMIENTO SECUENCIAL
+         ==================================================================== -->
+    <section id="ordenamiento" class="tab-content">
+      <div class="section-header">
+        <h2>🧩 Desafíos de Ordenamiento Secuencial</h2>
+        <p>En seguridad eléctrica, el orden estricto de los pasos salva vidas. Arrastra las tarjetas o usa las flechas (▲ / ▼) para ordenar la maniobra de forma correcta.</p>
+      </div>
+
+      <div class="sequence-container">
+        <div class="sequence-selector" id="seq-tabs-container">
+          <!-- Pestañas de secuencias -->
+        </div>
+
+        <div class="sequence-card">
+          <div class="seq-header">
+            <h3 id="seq-title">Las 5 Reglas de Oro</h3>
+            <p id="seq-description">Ordena los pasos de la secuencia técnica:</p>
+          </div>
+
+          <div class="sequence-list" id="seq-list">
+            <!-- Pasos desordenados -->
+          </div>
+
+          <div class="seq-actions">
+            <button class="btn-reset-seq" id="btn-reset-seq">🔀 Volver a Mezclar</button>
+            <button class="btn-check-seq" id="btn-check-seq">✔ Comprobar Mi Secuencia</button>
+          </div>
+
+          <div class="seq-feedback" id="seq-feedback">
+            <!-- Mensaje de validación -->
+          </div>
+
+          <!-- Explicación de Por Qué Salva Vidas -->
+          <div class="seq-safety-rationale" id="seq-rationale" style="display: none;">
+            <!-- Explicación técnica inyectada dinámicamente -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         4. SECCIÓN: ZONA DE MINIJUEGOS Y PRÁCTICA RÁPIDA
+         ==================================================================== -->
+    <section id="juegos" class="tab-content">
+      <div class="section-header">
+        <h2>🎮 Zona de Minijuegos y Práctica Dinámica</h2>
+        <p>Aprende de manera lúdica: empareja conceptos, responde preguntas rápidas de verdadero/falso y simula cálculos de campo.</p>
+      </div>
+
+      <div class="games-hub">
+        <!-- Minijuego 1: Match de Conceptos -->
+        <div class="game-card-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-size: 1.3rem; color: #fff;">⚡ Match Eléctrico (Emparejar Conceptos)</h3>
+            <button class="btn-game-replay" id="btn-match-reset">🔄 Volver a Jugar</button>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.35rem;">Haz clic en un elemento de la columna izquierda y luego en su correspondiente de la derecha:</p>
+
+          <div style="display: flex; gap: 0.5rem; margin: 1rem 0; flex-wrap: wrap;" id="match-tabs">
+            <!-- Pestañas de tipos de Match -->
+          </div>
+
+          <div class="match-game-board">
+            <div class="match-column" id="match-col-left"></div>
+            <div class="match-column" id="match-col-right"></div>
+          </div>
+
+          <div id="match-status" style="margin-top: 1rem; font-size: 0.9rem; color: var(--accent-cyan); text-align: center; min-height: 24px;"></div>
+        </div>
+
+        <!-- Minijuego 2: Test Rápido Verdadero o Falso -->
+        <div class="game-card-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-size: 1.3rem; color: #fff;">⚡ Desafío Rápido: ¿Verdadero o Falso?</h3>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span id="tf-current-num" style="color: var(--accent-amber); font-weight: 700; font-size: 0.9rem;">1/8</span>
+              <button class="btn-game-replay" id="btn-tf-reset">🔄 Reiniciar Test</button>
+            </div>
+          </div>
+
+          <div class="tf-card">
+            <div class="tf-question" id="tf-question">Cargando desafío...</div>
+
+            <div class="tf-buttons">
+              <button class="btn-tf true" id="btn-tf-true">👍 VERDADERO</button>
+              <button class="btn-tf false" id="btn-tf-false">👎 FALSO</button>
+            </div>
+
+            <div class="tf-explanation" id="tf-feedback"></div>
+          </div>
+        </div>
+
+        <!-- Minijuego 3: Calculadora de Profundidad de Postes -->
+        <div class="game-card-section">
+          <h3 style="font-size: 1.3rem; color: #fff; margin-bottom: 0.35rem;">🪵 Calculadora de Empotramiento de Postes (LABT)</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Regla técnica oficial: <strong>10% del largo del poste + 60 cm</strong>.</p>
+
+          <div class="calc-box">
+            <div class="preset-buttons-row">
+              <span style="font-size: 0.85rem; color: var(--text-muted);">Medidas Típicas Rápidas:</span>
+              <button class="btn-preset-post" data-meters="8">Poste 8 metros</button>
+              <button class="btn-preset-post" data-meters="10">Poste 10 metros</button>
+              <button class="btn-preset-post" data-meters="12">Poste 12 metros</button>
+              <button class="btn-preset-post" data-meters="14">Poste 14 metros</button>
+            </div>
+
+            <div class="calc-input-group">
+              <label for="post-length-input">Largo total del poste (metros):</label>
+              <input type="number" id="post-length-input" value="8" min="4" max="20" step="0.5">
+            </div>
+
+            <div class="calc-result-display">
+              <div class="calc-result-formula" id="calc-result-formula">Fórmula: (8m × 10%) + 60cm = 0.80m + 0.60m</div>
+              <div class="calc-result-value" id="calc-result-value">Profundidad de pozo requerida: 1.40 metros</div>
+              <div id="calc-result-above" style="font-size: 0.9rem; color: var(--accent-cyan); margin-top: 0.35rem; font-weight: 700;">
+                🌲 Altura útil visible sobre el terreno: 6.60 metros
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         5. SECCIÓN: DIAGRAMAS E INFOGRAFÍAS TÉCNICAS
+         ==================================================================== -->
+    <section id="diagramas" class="tab-content">
+      <div class="section-header">
+        <h2>📊 Simuladores Visuales e Infografías Técnicas</h2>
+        <p>Aprende de forma visual y práctica: simula la inspección de postes en campo, pruebas con voltímetro y distancias reglamentarias.</p>
+      </div>
+
+      <div class="diagrams-grid">
+        <!-- Simulador Interactivo de Inspección de Poste en Campo -->
+        <div class="diagram-card" style="grid-column: 1 / -1;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+              <h3>🪵 Simulador de Inspección de Poste de Madera en Campo</h3>
+              <button class="btn-game-replay" id="btn-pole-reset">🔄 Reiniciar Inspección</button>
+            </div>
+            <p style="margin-top: 0.25rem;">Sigue los 4 pasos secuenciales para comprobar que el poste sea seguro antes de subir. Haz clic en las etapas en el orden técnico reglamentario:</p>
+
+            <div class="pole-sim-container">
+              <!-- Visual del Poste SVG -->
+              <div class="pole-svg-wrapper">
+                <svg viewBox="0 0 120 280" width="100%" height="260" style="overflow: visible;">
+                  <!-- Suelo -->
+                  <rect x="0" y="220" width="120" height="60" fill="#292524" />
+                  <line x1="0" y1="220" x2="120" y2="220" stroke="#78716c" stroke-width="3" />
+                  <!-- Poste Madera -->
+                  <rect x="48" y="20" width="24" height="240" rx="3" fill="#854d0e" stroke="#a16207" stroke-width="2" />
+                  <line x1="60" y1="20" x2="60" y2="220" stroke="#713f12" stroke-width="1.5" stroke-dasharray="8 6" />
+                  
+                  <!-- Cruceta Superior -->
+                  <rect x="25" y="40" width="70" height="10" rx="2" fill="#713f12" />
+                  <!-- Aisladores -->
+                  <circle cx="35" cy="35" r="5" fill="#38bdf8" />
+                  <circle cx="60" cy="35" r="5" fill="#38bdf8" />
+                  <circle cx="85" cy="35" r="5" fill="#38bdf8" />
+
+                  <!-- Hotspot Zonas -->
+                  <circle id="hotspot-visual" cx="60" cy="80" r="16" fill="rgba(56,189,248,0.3)" stroke="#38bdf8" stroke-width="2" style="cursor: pointer;" />
+                  <text x="60" y="85" font-size="12" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
+
+                  <circle id="hotspot-punzado" cx="60" cy="210" r="16" fill="rgba(251,191,36,0.3)" stroke="#fbbf24" stroke-width="2" style="cursor: pointer;" />
+                  <text x="60" y="215" font-size="12" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
+
+                  <circle id="hotspot-golpe" cx="60" cy="145" r="16" fill="rgba(168,85,247,0.3)" stroke="#a855f7" stroke-width="2" style="cursor: pointer;" />
+                  <text x="60" y="150" font-size="12" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
+
+                  <circle id="hotspot-movimiento" cx="60" cy="30" r="16" fill="rgba(244,63,94,0.3)" stroke="#f43f5e" stroke-width="2" style="cursor: pointer;" />
+                  <text x="60" y="35" font-size="12" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
+                </svg>
+              </div>
+
+              <!-- Pasos y Checklist -->
+              <div>
+                <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                  <button class="pole-stage-btn active-target" id="stage-btn-1" data-step="1">
+                    👁️ <strong>Paso 1: Inspección Visual</strong> (Plomo, rajaduras y fisuras)
+                  </button>
+                  <button class="pole-stage-btn" id="stage-btn-2" data-step="2">
+                    🗡️ <strong>Paso 2: Punzado en Base</strong> (4 puntos cardinales para verificar podredumbre)
+                  </button>
+                  <button class="pole-stage-btn" id="stage-btn-3" data-step="3">
+                    🔨 <strong>Paso 3: Golpe Espiralado</strong> (Desde base hacia arriba para detectar ahuecamiento)
+                  </button>
+                  <button class="pole-stage-btn" id="stage-btn-4" data-step="4">
+                    💪 <strong>Paso 4: Movimiento de Tracción</strong> (Fuerza en sentido contrario a la línea)
+                  </button>
+                </div>
+
+                <div class="pole-sim-status" id="pole-sim-status">
+                  👉 <strong>Paso 1 requerido:</strong> Haz clic en el <strong>Paso 1</strong> o en el punto (1) del poste para realizar la inspección visual.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulador de Voltímetro en Toma BT -->
+        <div class="diagram-card">
+          <div>
+            <h3>🔌 Simulador de Medición en Toma BT</h3>
+            <p>Selecciona entre qué bornes colocas las puntas de prueba para ver la lectura en el voltímetro:</p>
+
+            <div class="multimeter-container">
+              <div class="tester-screen" id="tester-screen">220 V</div>
+              <div class="tester-status" id="tester-status">
+                ⚡ <strong>Figura A:</strong> Medición entre Fase y Neutro. Tensión monofásica simple correcta.
+              </div>
+
+              <div class="tester-probes-buttons">
+                <button class="btn-test-probe active" data-probe="fase-neutro">
+                  🔴 Medir Figura A: Entre Fase y Neutro
+                </button>
+                <button class="btn-test-probe" data-probe="fase-fase-distinta">
+                  ⚡ Medir Figura B: Entre Fases de Distinto Potencial (R y S)
+                </button>
+                <button class="btn-test-probe" data-probe="fase-fase-igual">
+                  🔒 Medir Figura C: Entre Fases de Igual Potencial (Fases ligadas)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Infografía de Distancias de Seguridad -->
+        <div class="diagram-card">
+          <div>
+            <h3>📏 Distancias de Seguridad Reglamentarias</h3>
+            <p>Límites mínimos de aproximación para personas y maquinaria pesada:</p>
+
+            <div class="distances-visual">
+              <div class="dist-bar-item">
+                <div class="dist-info-row">
+                  <span>👷 Personas en BT y MT</span>
+                  <span style="color: #38bdf8;">0.80 metros</span>
+                </div>
+                <div class="dist-progress-track">
+                  <div class="dist-progress-bar" style="width: 25%; background: #38bdf8;"></div>
+                </div>
+              </div>
+
+              <div class="dist-bar-item">
+                <div class="dist-info-row">
+                  <span>👷 Personas en Alta Tensión (AT)</span>
+                  <span style="color: #fbbf24;">1.50 metros</span>
+                </div>
+                <div class="dist-progress-track">
+                  <div class="dist-progress-bar" style="width: 45%; background: #fbbf24;"></div>
+                </div>
+              </div>
+
+              <div class="dist-bar-item">
+                <div class="dist-info-row">
+                  <span>🏗️ Grúas e Hidroelevadores en BT y MT</span>
+                  <span style="color: #f97316;">3.00 metros</span>
+                </div>
+                <div class="dist-progress-track">
+                  <div class="dist-progress-bar" style="width: 70%; background: #f97316;"></div>
+                </div>
+              </div>
+
+              <div class="dist-bar-item">
+                <div class="dist-info-row">
+                  <span>🏗️ Grúas e Hidroelevadores en Alta Tensión (AT)</span>
+                  <span style="color: #f43f5e;">5.00 metros</span>
+                </div>
+                <div class="dist-progress-track">
+                  <div class="dist-progress-bar" style="width: 100%; background: #f43f5e;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Esquema de Delimitación Urbana -->
+        <div class="diagram-card" style="grid-column: 1 / -1;">
+          <div>
+            <h3>🚧 Esquema de Delimitación en Zona Urbana</h3>
+            <p>Medidas de protección colectiva (EPC) al realizar trabajos sobre la vereda y calzada:</p>
+
+            <div class="urban-diagram">
+              <div class="urban-layer urban-vereda">
+                <span>🏠 Zona de Trabajo en Vereda:</span>
+                <span>Vallas de contención, conos reflectivos y cinta de peligro perimetral.</span>
+              </div>
+              <div class="urban-layer urban-senda">
+                <span>🚶 Senda Peatonal Obligatoria:</span>
+                <span><strong>90 cm de ancho mínimo</strong> sobre la calzada protegida con vallas si se ocupa toda la vereda.</span>
+              </div>
+              <div class="urban-layer urban-calzada">
+                <span>🚗 Calzada y Tránsito Vehicular:</span>
+                <span>Carteles de desvío con preaviso anticipado, conos viales y señalización reflectiva.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal: Ruleta de Pregunta Relámpago -->
+  <div class="modal-backdrop" id="modal-roulette">
+    <div class="modal-content-card">
+      <button class="modal-close-btn" id="btn-close-roulette">✕</button>
+      
+      <div class="roulette-spinner" id="roulette-spinner-view">
+        <div class="roulette-icon-wheel" id="roulette-icon">🎯</div>
+        <h3 style="font-size: 1.4rem; color: #fff; margin-bottom: 0.35rem;">Ruleta de Pregunta Relámpago</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+          Gira la ruleta y responde una pregunta técnica al azar para un repaso express en 1 minuto.
+        </p>
+        <button class="btn-start-quiz" id="btn-spin-roulette">🎲 ¡Girar Ruleta Ahora!</button>
+      </div>
+
+      <div id="roulette-question-view" style="display: none;">
+        <span class="card-badge" id="roulette-cat-badge">⚡ Pregunta</span>
+        <h3 id="roulette-q-title" style="color: #fff; margin: 0.75rem 0 1rem 0; font-size: 1.15rem; line-height: 1.4;"></h3>
+        <div id="roulette-options-container" style="display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 1rem;"></div>
+        <div class="quiz-feedback-box" id="roulette-feedback-box"></div>
+        <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+          <button class="btn-reset-seq" id="btn-spin-again">🔄 Otra Pregunta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Glosario de Siglas y Definiciones -->
+  <div class="modal-backdrop" id="modal-glossary">
+    <div class="modal-content-card" style="max-width: 750px;">
+      <button class="modal-close-btn" id="btn-close-glossary">✕</button>
+      <h3 style="font-size: 1.4rem; color: #fff; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">
+        📚 Diccionario Rápido de Siglas Técnicas
+      </h3>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1rem;">
+        Busca al instante el significado de las siglas y términos reglamentarios más consultados:
+      </p>
+
+      <div class="glossary-search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="glossary-search-input" placeholder="Buscar sigla (ej: 'ATS', 'ARPO', 'T4', 'SRT', 'ART', 'FEM')...">
+      </div>
+
+      <div class="glossary-grid" id="glossary-grid">
+        <!-- Tarjetas de siglas inyectadas dinámicamente -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor de Notificaciones Toast -->
+  <div id="toast-container"></div>
+
+  <!-- Pie de Página -->
+  <footer class="app-footer">
+    <p>⚡ <strong>ChispApp</strong> • Plataforma Interactiva de Capacitación y Seguridad Eléctrica BT/MT • Material de Estudio Oficial</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
